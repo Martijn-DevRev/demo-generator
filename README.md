@@ -71,9 +71,11 @@ Edit `config/.env` with your settings:
    - Configure auto-reply settings
    - Set up SLA configuration
 
+Important: when cleaning up, ALL existing accounts except the creator of the org, will be deleted.
+
 ## Production Deployment
 
-For production deployment with NGINX:
+For production deployment with NGINX reverse proxy:
 
 1. Configure NGINX (example configuration provided):
 
