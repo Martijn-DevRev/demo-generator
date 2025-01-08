@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  demogenerator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devrev-demo-generator
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./config:/app/config:ro
+      - ./data:/app/data:ro
+      - sessions:/app/sessions
+      - ./static:/app/static:ro
+      - ./templates:/app/templates:ro
+    environment:
+      - FLASK_APP=main.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      # These will be overridden by .env file
+      - OPENAI_ORGANIZATION=${OPENAI_ORGANIZATION}
+      - OPENAI_PROJECT=${OPENAI_PROJECT}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+    networks:
+      - devrev-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  nginx:
+    image: nginx:alpine
+    container_name: devrev-demo-generator-nginx
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./static:/usr/share/nginx/html/static:ro
+    depends_on:
+      - demogenerator
+    networks:
+      - devrev-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  sessions:
+    name: devrev-demo-generator-sessions
+
+networks:
+  devrev-network:
+    name: devrev-demo-generator-network
+    driver: bridge
