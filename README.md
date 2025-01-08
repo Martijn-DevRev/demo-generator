@@ -50,7 +50,6 @@ Edit `config/.env` with your settings:
     OPENAI_ORGANIZATION=your_org_id
     OPENAI_PROJECT=your_project_id
     OPENAI_API_KEY=your_api_key
-    SESSION_SECRET=your_session_secret
 
 ## Usage
 
