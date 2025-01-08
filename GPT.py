@@ -15,13 +15,13 @@ from utils import save_payload_to_file
 # Set up logging
 logger = logging.getLogger(__name__)
 
-def prompt_gpt_for_trails(company_url, openai_credentials, session_path=None):
+def prompt_gpt_for_trails(company_url, openai_credentials, session_path):
     """
     Generate product trails structure using GPT and save to session directory
     Args:
         company_url: URL of the company website
         openai_credentials: Dictionary containing OpenAI credentials
-        session_path: Path to session directory
+        session_path: Path to session directory (required)
     Returns:
         Dictionary containing the trails structure
     """
@@ -78,21 +78,8 @@ def prompt_gpt_for_trails(company_url, openai_credentials, session_path=None):
             if not isinstance(json_data, dict):
                 raise ValueError(f"Expected dictionary for trails, got {type(json_data)}")
 
-            if session_path:
-                output_path = Path(session_path) / "input_files"
-                output_file = output_path / "trails.json"
-                logger.info(f"Saving trails to session directory: {output_file}")
-            else:
-                output_file = Path("./input_files/trails.json")
-                logger.warning("No session path provided, using default directory for trails")
-
-            output_path = output_file.parent
-            output_path.mkdir(parents=True, exist_ok=True)
-
-            with open(output_file, 'w') as json_file:
-                json.dump(json_data, json_file, indent=2)
-
-            logger.info(f"Created trails JSON with {len(json_data)} capabilities")
+            save_payload_to_file(json_data, "trails_gpt", session_path)
+            logger.info(f"Product hierarchy JSON created with {len(json_data)} capabilities")
             print("========================================")
             return json_data
 
@@ -108,7 +95,7 @@ def prompt_gpt_for_trails(company_url, openai_credentials, session_path=None):
         print("========================================")
         raise
 
-def prompt_gpt_for_tickets(parts, company_url, min_quantity, max_quantity, openai_credentials, session_path=None, progress_callback=None):
+def prompt_gpt_for_tickets(parts, company_url, min_quantity, max_quantity, openai_credentials, session_path, progress_callback=None):
     """
     Generate ticket content using GPT and save to session directory
     Args:
@@ -117,7 +104,7 @@ def prompt_gpt_for_tickets(parts, company_url, min_quantity, max_quantity, opena
         min_quantity: Minimum number of tickets per part
         max_quantity: Maximum number of tickets per part
         openai_credentials: Dictionary containing OpenAI credentials
-        session_path: Path to session directory
+        session_path: Path to session directory (required)
         progress_callback: Callback function for progress updates
     Returns:
         List of generated tickets
@@ -224,16 +211,13 @@ IMPORTANT:
     logger.info(f"Total tokens used: {usage}")
 
     # Save generated tickets to session directory
-    if session_path:
-        save_payload_to_file(tickets, "tickets_gpt", session_path)
-        logger.info(f"Saved {len(tickets)} tickets to session directory")
-    else:
-        logger.warning("No session path provided, skipping ticket file save")
+    save_payload_to_file(tickets, "tickets_gpt", session_path)
+    logger.info(f"Saved {len(tickets)} tickets to session directory")
 
     print("========================================")
     return tickets
 
-def prompt_gpt_for_issues(parts, company_url, min_quantity, max_quantity, openai_credentials, session_path=None, progress_callback=None):
+def prompt_gpt_for_issues(parts, company_url, min_quantity, max_quantity, openai_credentials, session_path, progress_callback=None):
     """
     Generate issue content using GPT and save to session directory
     Args:
@@ -242,7 +226,7 @@ def prompt_gpt_for_issues(parts, company_url, min_quantity, max_quantity, openai
         min_quantity: Minimum number of issues per part
         max_quantity: Maximum number of issues per part
         openai_credentials: Dictionary containing OpenAI credentials
-        session_path: Path to session directory
+        session_path: Path to session directory (required)
         progress_callback: Callback function for progress updates
     Returns:
         List of generated issues
@@ -349,11 +333,8 @@ IMPORTANT:
     logger.info(f"Total tokens used: {usage}")
 
     # Save generated issues to session directory
-    if session_path:
-        save_payload_to_file(issues, "issues_gpt", session_path)
-        logger.info(f"Saved {len(issues)} issues to session directory")
-    else:
-        logger.warning("No session path provided, skipping issue file save")
+    save_payload_to_file(issues, "issues_gpt", session_path)
+    logger.info(f"Saved {len(issues)} issues to session directory")
 
     print("========================================")
     return issues
